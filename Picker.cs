@@ -57,7 +57,9 @@ namespace EncounterPicker
                 // Campaign combats are named after their node: csen_8 belongs to sen_8 ('Eastern Farmland').
                 string place = k.Key.StartsWith("c") ? Globals.Instance.GetNodeData(k.Key.Substring(1))?.NodeName : null;
                 string label = $"{(string.IsNullOrEmpty(place) ? "" : place + ": ")}{npcs}   ({k.Key})";
-                return new Entry { Id = k.Key, Label = label, Search = label.ToLowerInvariant(), Npcs = k.Value.NPCList };
+                // Search also matches the enemies' internal ids, so "hydra" finds fights whose displayed names are only "Hatred, Arrogance, ...".
+                string npcIds = k.Value.NPCList == null ? "" : string.Join(" ", k.Value.NPCList.Where(n => n != null).Select(n => n.Id));
+                return new Entry { Id = k.Key, Label = label, Search = (label + " " + npcIds).ToLowerInvariant(), Npcs = k.Value.NPCList };
             }).ToList();
 
             var npcSource = Traverse.Create(Globals.Instance).Field("_NPCsSource").GetValue<Dictionary<string, NPCData>>();
