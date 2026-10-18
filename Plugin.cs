@@ -13,7 +13,7 @@ namespace EncounterPicker
     {
         public const string PluginGuid = "com.cojoco.encounterpicker";
         public const string PluginName = "Encounter Picker";
-        public const string PluginVersion = "0.2.0";
+        public const string PluginVersion = "0.3.0";
 
         internal static ManualLogSource Log;
 
@@ -52,7 +52,7 @@ namespace EncounterPicker
                 "Loads encounterpicker-spec.json from the config folder and applies it to the current map.");
             KeepAllEnemies = Config.Bind("Combat", "KeepAllEnemies", false,
                 "Skip the easy-mode trimming that removes one enemy from many campaign combats at madness 0 (acts 1-2).");
-            DmPicker = Config.Bind("DungeonMaster", "Picker", false,
+            DmPicker = Config.Bind("DungeonMaster", "Picker", true,
                 "When the party travels to a combat, event or town node, hold the travel and let the host pick what the node becomes. Host or solo only.");
             NoCorruption = Config.Bind("DungeonMaster", "NoCorruption", false,
                 "Never show the corruption offer before combats. Host or solo only.");

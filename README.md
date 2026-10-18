@@ -32,8 +32,7 @@ A BepInEx mod for **Across the Obelisk** that lets the host of a run (or a solo 
 
 1. Across the Obelisk with **BepInEx 5.4.x** installed (Windows: the `win_x64` build; Linux: the native BepInEx 5 setup). The game used Unity 2022.3 and Mono when this was written.
 2. Copy `EncounterPicker.dll` into the game's `BepInEx/plugins/` folder.
-3. Start the game once. The settings file `BepInEx/config/com.cojoco.encounterpicker.cfg` is created.
-4. Set `Picker = true` under `[DungeonMaster]` and restart. The picker is off by default so the plugin does nothing unless asked.
+3. Start the game. The settings file `BepInEx/config/com.cojoco.encounterpicker.cfg` is created, and the picker is on by default. To turn it off, set `Picker = false` under `[DungeonMaster]` and restart.
 
 BepInEx does not hot-reload plugins: restart the game after changing the DLL.
 
@@ -57,7 +56,7 @@ Change them under `[Hotkeys]` in the config file. F12 is the Steam screenshot ke
 
 | Section / key | Default | Meaning |
 |---|---|---|
-| `[DungeonMaster] Picker` | `false` | Hold travel to combat, event and town nodes and show the DM panel (host or solo only) |
+| `[DungeonMaster] Picker` | `true` | Hold travel to combat, event and town nodes and show the DM panel (host or solo only) |
 | `[DungeonMaster] NoCorruption` | `false` | Never show the corruption offer before combats |
 | `[Combat] KeepAllEnemies` | `false` | Skip the easy-mode enemy trimming |
 | `[Logging] Verbose` | `false` | Also log every node hover and click, and corruption checks |
