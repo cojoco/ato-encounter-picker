@@ -10,13 +10,23 @@ A BepInEx mod for **Across the Obelisk** that lets the host of a run (or a solo 
   - any **combat** or **event** in the game, with readable names (enemies for combats, event names for events),
   - a **town** (and a town can be turned into an encounter),
   - **custom enemies**: choose up to four enemies yourself, under a base combat of your choice,
-  - **no corruption offer** for that node (a checkbox),
+  - **no corruption offer** for that node (a toggle button),
   - or **Keep as is**.
   Visited nodes can be revisited: picking something re-runs the node. **Just go there** travels without running anything.
-- **Reward preview.** Combats and enemies in the lists show their base loot tier and per-hero XP and gold. Combat performance bonuses are not included, so real rewards can be higher (about +50% was seen).
+- **Portraits and reward preview.** Combat rows show up to four enemy portraits, enemy rows show one, and filled custom-enemy slots show their enemy. Combats and enemies in the lists also show their base loot tier and per-hero XP and gold. Combat performance bonuses are not included, so real rewards can be higher (about +50% was seen).
 - **Spec file.** A JSON file that sets nodes ahead of time (see below).
 - **KeepAllEnemies.** The game removes one enemy from many campaign combats at the base difficulty in acts 1-2. This setting keeps them.
 - **Map dump.** F10 writes every node, its zone, name, action and enemies to the history log.
+
+## The picker panel
+
+- **Header:** the node's name and id (and "visited before" on a revisit), the node's current assignment, and a **Hide** button.
+- **Hide / Show.** Hide collapses the panel to a small "Show encounter picker" bar at the top of the screen so you can look over the map first. Travel stays held until you choose. The panel is shown again for the next node.
+- **Tabs:** **Combats**, **Events** and **Custom enemies**, with a **Filter** box. The filter matches the displayed names, the ids, and the enemies' internal ids (so `hydra` finds every hydra fight even though they are shown as "Hatred, Arrogance, ...").
+- **Town and corruption:** **Turn this node into a town**, and a **No corruption offer** toggle (ON when highlighted).
+- **List:** large rows with portraits and a reward line. Click a row to pick it. Lists show the first 150 matches, so type in the filter to narrow them.
+- **Custom enemies tab:** four slot buttons (the selected slot is highlighted, with the enemy's portrait). Click an enemy in the list to fill the selected slot; the selection then moves to the next slot. **Clear selected slot** and **Clear all** empty slots, **Change** picks the base combat, and **Run with these enemies** starts the fight.
+- **Footer:** **Keep as is** (or **Just go there** on a visited node).
 
 ## Requirements and install
 
