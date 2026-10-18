@@ -82,6 +82,7 @@ namespace MapDumper
         private void Update()
         {
             Picker.Tick();
+            CorruptionPreview.Tick();
 
             if (Plugin.DumpKey.Value.IsDown())
             {
