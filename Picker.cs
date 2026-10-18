@@ -20,6 +20,7 @@ namespace EncounterPicker
         internal static bool Bypass;
 
         private static bool decided;
+        private static bool hidden;
         private static string chosen;
 
         private static string filter = "";
@@ -230,25 +231,41 @@ namespace EncounterPicker
             float scale = Screen.height / 1080f;
             GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
             GUI.depth = -1000;
+            GUISkin previousSkin = GUI.skin;
+            GUI.skin = PickerStyles.Skin;
 
-            const float w = 900f;
-            const float h = 820f;
+            const float w = 1000f;
+            const float h = 900f;
             float sw = Screen.width / scale;
             float sh = Screen.height / scale;
-            var area = new Rect((sw - w) / 2f, (sh - h) / 2f, w, h);
 
-            // Draw the box a few times so the map behind is dimmed enough to read the text.
-            for (int i = 0; i < 3; i++)
+            // Hidden: only a small bar stays, so the map can be looked over before picking.
+            if (hidden)
             {
-                GUI.Box(area, GUIContent.none);
+                if (GUI.Button(new Rect((sw - 320f) / 2f, 12f, 320f, 52f), "Show encounter picker"))
+                {
+                    hidden = false;
+                }
+                GUI.skin = previousSkin;
+                return;
             }
 
-            GUILayout.BeginArea(new Rect(area.x + 16f, area.y + 16f, w - 32f, h - 32f));
+            var area = new Rect((sw - w) / 2f, (sh - h) / 2f, w, h);
+            GUI.Box(area, GUIContent.none);
+
+            GUILayout.BeginArea(new Rect(area.x + 20f, area.y + 20f, w - 40f, h - 40f));
 
             string nodeId = Pending.nodeData.NodeId;
             AtOManager.Instance.gameNodeAssigned.TryGetValue(nodeId, out string current);
             bool visited = AtOManager.Instance.mapVisitedNodes.Contains(nodeId);
-            GUILayout.Label($"<b>Dungeon master: {Pending.nodeData.NodeName} ({nodeId}){(visited ? " - visited before" : "")}</b>");
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"Dungeon master: {Pending.nodeData.NodeName} ({nodeId}){(visited ? " - visited before" : "")}", PickerStyles.Title);
+            if (GUILayout.Button("Hide", GUILayout.Width(120f)))
+            {
+                hidden = true;
+            }
+            GUILayout.EndHorizontal();
             GUILayout.Label($"Currently: {Friendly(current)}");
 
             if (slotsNode != nodeId)
@@ -258,8 +275,9 @@ namespace EncounterPicker
             string[] existing = SpecFile.EnemiesFor(nodeId);
             if (existing != null)
             {
-                GUILayout.Label($"Custom enemies set for this node: [{string.Join(", ", existing)}]");
+                GUILayout.Label($"Custom enemies set for this node: [{string.Join(", ", existing)}]", PickerStyles.Muted);
             }
+            GUILayout.Space(6f);
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Toggle(tab == 0, "Combats", GUI.skin.button))
@@ -274,29 +292,30 @@ namespace EncounterPicker
             {
                 tab = 2;
             }
-            GUILayout.Label("Filter:", GUILayout.Width(50f));
-            filter = GUILayout.TextField(filter, GUILayout.Width(300f));
+            GUILayout.Space(12f);
+            GUILayout.Label("Filter:", GUILayout.Width(60f));
+            filter = GUILayout.TextField(filter, GUILayout.Width(280f));
             GUILayout.EndHorizontal();
 
+            GUILayout.BeginHorizontal();
             if (GUILayout.Button("Turn this node into a town"))
             {
                 decided = true;
                 chosen = "town:town";
             }
+            skipCorruption = GUILayout.Toggle(skipCorruption, skipCorruption ? "No corruption offer: ON" : "No corruption offer: off", GUI.skin.button);
+            GUILayout.EndHorizontal();
 
-            skipCorruption = GUILayout.Toggle(skipCorruption, "No corruption offer for this node");
-
-            float listHeight = h - 250f;
             if (tab == 2)
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"Runs under: {combats.FirstOrDefault(e => e.Id == baseCombat.ToLower())?.Label ?? baseCombat}", GUILayout.ExpandWidth(true));
-                if (GUILayout.Button(choosingBase ? "Back to enemies" : "Change", GUILayout.Width(150f)))
+                if (GUILayout.Button(choosingBase ? "Back to enemies" : "Change", GUILayout.Width(190f)))
                 {
                     choosingBase = !choosingBase;
                 }
                 GUILayout.EndHorizontal();
-                GUILayout.Label("The combat sets the end-of-combat event, healing and special effects. Rewards come from the enemies below.");
+                GUILayout.Label("The combat sets the end-of-combat event, healing and special effects. Rewards come from the enemies below.", PickerStyles.Muted);
 
                 GUILayout.BeginHorizontal();
                 for (int i = 0; i < slots.Length; i++)
@@ -312,6 +331,14 @@ namespace EncounterPicker
                 if (GUILayout.Button("Clear selected slot"))
                 {
                     slots[slotSel] = "";
+                }
+                if (GUILayout.Button("Clear all"))
+                {
+                    for (int i = 0; i < slots.Length; i++)
+                    {
+                        slots[i] = "";
+                    }
+                    slotSel = 0;
                 }
                 GUI.enabled = slots.Any(x => x != "");
                 if (GUILayout.Button("Run with these enemies"))
@@ -330,22 +357,23 @@ namespace EncounterPicker
                 GUI.enabled = true;
                 GUILayout.EndHorizontal();
 
-                GUILayout.Label($"Rewards from these enemies: {RewardSummary(slots.Select(id => id == "" ? null : Globals.Instance.GetNPC(id)))} (before any combat performance bonus)");
+                GUILayout.Label($"Rewards from these enemies: {RewardSummary(slots.Select(id => id == "" ? null : Globals.Instance.GetNPC(id)))} (before any combat performance bonus)", PickerStyles.Muted);
                 if (message != "")
                 {
                     GUILayout.Label(message);
                 }
-                listHeight -= 160f;
             }
+            GUILayout.Space(6f);
 
             string needle = filter.Trim().ToLowerInvariant();
             var rows = (tab == 1 ? events : tab == 2 && !choosingBase ? npcs : combats).Where(e => needle == "" || e.Search.Contains(needle)).ToList();
 
-            scroll = GUILayout.BeginScrollView(scroll, GUILayout.Height(listHeight));
+            // The list takes whatever height is left, so the footer button stays at the bottom.
+            scroll = GUILayout.BeginScrollView(scroll, GUILayout.ExpandHeight(true));
             foreach (Entry entry in rows.Take(MaxRows))
             {
-                string reward = entry.Npcs != null ? $"   [{RewardSummary(entry.Npcs)}]" : "";
-                if (GUILayout.Button(entry.Label + reward, GUILayout.ExpandWidth(true)))
+                string text = entry.Npcs != null ? $"{entry.Label}\n<size=15><color=#b8a888>{RewardSummary(entry.Npcs)}</color></size>" : entry.Label;
+                if (GUILayout.Button(text, PickerStyles.Row, GUILayout.MinHeight(entry.Npcs != null ? 64f : 48f)))
                 {
                     if (tab == 2 && choosingBase)
                     {
@@ -367,17 +395,19 @@ namespace EncounterPicker
             }
             if (rows.Count > MaxRows)
             {
-                GUILayout.Label($"...and {rows.Count - MaxRows} more. Type in the filter to narrow the list.");
+                GUILayout.Label($"...and {rows.Count - MaxRows} more. Type in the filter to narrow the list.", PickerStyles.Muted);
             }
             GUILayout.EndScrollView();
 
-            if (GUILayout.Button(visited ? "Just go there (no encounter)" : "Keep as is"))
+            GUILayout.Space(6f);
+            if (GUILayout.Button(visited ? "Just go there (no encounter)" : "Keep as is", GUILayout.MinHeight(52f)))
             {
                 decided = true;
                 chosen = null;
             }
 
             GUILayout.EndArea();
+            GUI.skin = previousSkin;
         }
 
         // Custom enemies are set by the Custom tab; any other pick clears the node's custom enemies.
@@ -421,6 +451,7 @@ namespace EncounterPicker
             string[] enemies = customEnemies;
             bool skipOffer = skipCorruption;
             Pending = null;
+            hidden = false;
             decided = false;
             chosen = null;
             customEnemies = null;

@@ -22,6 +22,7 @@
     <Reference Include="PhotonUnityNetworking"><HintPath>$(ManagedDir)/PhotonUnityNetworking.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="PhotonRealtime"><HintPath>$(ManagedDir)/PhotonRealtime.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="Photon3Unity3D"><HintPath>$(ManagedDir)/Photon3Unity3D.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(ManagedDir)/UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.InputLegacyModule"><HintPath>$(ManagedDir)/UnityEngine.InputLegacyModule.dll</HintPath><Private>false</Private></Reference>
   </ItemGroup>
 
