@@ -320,9 +320,13 @@ namespace EncounterPicker
                 GUILayout.BeginHorizontal();
                 for (int i = 0; i < slots.Length; i++)
                 {
-                    if (GUILayout.Toggle(slotSel == i, SlotLabel(i), GUI.skin.button))
+                    if (GUILayout.Toggle(slotSel == i, SlotLabel(i), PickerStyles.Slot, GUILayout.MinHeight(56f)))
                     {
                         slotSel = i;
+                    }
+                    if (Event.current.type == EventType.Repaint && slots[i] != "")
+                    {
+                        PickerStyles.DrawSlotIcon(Globals.Instance.GetNPC(slots[i]));
                     }
                 }
                 GUILayout.EndHorizontal();
@@ -373,7 +377,13 @@ namespace EncounterPicker
             foreach (Entry entry in rows.Take(MaxRows))
             {
                 string text = entry.Npcs != null ? $"{entry.Label}\n<size=15><color=#b8a888>{RewardSummary(entry.Npcs)}</color></size>" : entry.Label;
-                if (GUILayout.Button(text, PickerStyles.Row, GUILayout.MinHeight(entry.Npcs != null ? 64f : 48f)))
+                int icons = entry.Npcs == null ? 0 : tab == 2 && !choosingBase ? 1 : 4;
+                bool clicked = GUILayout.Button(text, icons == 0 ? PickerStyles.Row : PickerStyles.RowWithIcons(icons), GUILayout.MinHeight(entry.Npcs != null ? 64f : 48f));
+                if (icons > 0 && Event.current.type == EventType.Repaint)
+                {
+                    PickerStyles.DrawRowIcons(entry.Npcs, icons);
+                }
+                if (clicked)
                 {
                     if (tab == 2 && choosingBase)
                     {

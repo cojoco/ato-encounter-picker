@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace EncounterPicker
@@ -15,6 +16,13 @@ namespace EncounterPicker
         internal static GUIStyle Title;
         internal static GUIStyle Muted;
         internal static GUIStyle Row;
+        internal static GUIStyle Slot;
+
+        private const float RowIcon = 48f;
+        private const float SlotIcon = 40f;
+
+        private static readonly Dictionary<int, GUIStyle> iconRows = new Dictionary<int, GUIStyle>();
+        private static readonly Dictionary<Sprite, KeyValuePair<Texture2D, Rect>> uvs = new Dictionary<Sprite, KeyValuePair<Texture2D, Rect>>();
 
         internal static GUISkin Skin
         {
@@ -102,6 +110,75 @@ namespace EncounterPicker
             Muted.normal.textColor = Dim;
 
             Row = new GUIStyle(skin.button) { alignment = TextAnchor.MiddleLeft, padding = new RectOffset(18, 18, 12, 12) };
+            Slot = new GUIStyle(skin.button) { alignment = TextAnchor.MiddleLeft, padding = new RectOffset((int)SlotIcon + 20, 8, 8, 8) };
+        }
+
+        // A list row with room on the left for this many portraits, so the text lines up across rows.
+        internal static GUIStyle RowWithIcons(int count)
+        {
+            if (!iconRows.TryGetValue(count, out GUIStyle style))
+            {
+                style = new GUIStyle(Row) { padding = new RectOffset(12 + count * ((int)RowIcon + 4) + 8, 18, 12, 12) };
+                iconRows[count] = style;
+            }
+            return style;
+        }
+
+        // Draws each enemy's portrait over the last control, left-aligned. Call right after the button, repaint only.
+        internal static void DrawRowIcons(NPCData[] npcs, int count)
+        {
+            Rect row = GUILayoutUtility.GetLastRect();
+            for (int i = 0; i < count && npcs != null && i < npcs.Length; i++)
+            {
+                DrawNpc(new Rect(row.x + 12f + i * (RowIcon + 4f), row.y + (row.height - RowIcon) / 2f, RowIcon, RowIcon), npcs[i]);
+            }
+        }
+
+        internal static void DrawSlotIcon(NPCData npc)
+        {
+            Rect row = GUILayoutUtility.GetLastRect();
+            DrawNpc(new Rect(row.x + 10f, row.y + (row.height - SlotIcon) / 2f, SlotIcon, SlotIcon), npc);
+        }
+
+        // The small turn-order portrait the combat screen uses, falling back to the larger ones, fitted into the box without stretching.
+        private static void DrawNpc(Rect box, NPCData npc)
+        {
+            if (npc == null)
+            {
+                return;
+            }
+            Sprite sprite = npc.SpriteSpeed != null ? npc.SpriteSpeed : npc.SpritePortrait != null ? npc.SpritePortrait : npc.Sprite;
+            if (sprite == null)
+            {
+                return;
+            }
+            if (!uvs.TryGetValue(sprite, out KeyValuePair<Texture2D, Rect> entry))
+            {
+                Texture2D tex = sprite.texture;
+                Rect uv = new Rect(0f, 0f, 1f, 1f);
+                if (tex != null)
+                {
+                    try
+                    {
+                        Rect r = sprite.textureRect;
+                        uv = new Rect(r.x / tex.width, r.y / tex.height, r.width / tex.width, r.height / tex.height);
+                    }
+                    catch (System.Exception)
+                    {
+                        // Tight-packed sprites refuse textureRect; the whole texture is the best that can be shown.
+                    }
+                }
+                entry = new KeyValuePair<Texture2D, Rect>(tex, uv);
+                uvs[sprite] = entry;
+            }
+            if (entry.Key == null)
+            {
+                return;
+            }
+            float aspect = entry.Value.width * entry.Key.width / System.Math.Max(1f, entry.Value.height * entry.Key.height);
+            float w = aspect >= 1f ? box.width : box.height * aspect;
+            float h = aspect >= 1f ? box.width / aspect : box.height;
+            GUI.DrawTextureWithTexCoords(new Rect(box.x + (box.width - w) / 2f, box.y + (box.height - h) / 2f, w, h), entry.Key, entry.Value);
         }
     }
 }
