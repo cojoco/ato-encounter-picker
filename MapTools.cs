@@ -1,7 +1,7 @@
 using System.Linq;
 using HarmonyLib;
 
-namespace MapDumper
+namespace EncounterPicker
 {
     // Helpers for inspecting and redrawing the map: the F10 dump and the node redraw used after assignments change.
     internal static class MapTools

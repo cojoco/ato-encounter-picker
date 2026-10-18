@@ -6,13 +6,13 @@ using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 
-namespace MapDumper
+namespace EncounterPicker
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     public class Plugin : BaseUnityPlugin
     {
-        public const string PluginGuid = "com.cojoco.mapdumper";
-        public const string PluginName = "Map Dumper";
+        public const string PluginGuid = "com.cojoco.encounterpicker";
+        public const string PluginName = "Encounter Picker";
         public const string PluginVersion = "0.2.0";
 
         internal static ManualLogSource Log;
@@ -43,13 +43,13 @@ namespace MapDumper
         private void Awake()
         {
             Log = Logger;
-            historyPath = Path.Combine(Paths.ConfigPath, "mapdumper-history.log");
+            historyPath = Path.Combine(Paths.ConfigPath, "encounterpicker-history.log");
             SpecFile.Init();
 
             DumpKey = Config.Bind("Hotkeys", "DumpMap", new KeyboardShortcut(KeyCode.F10),
                 "Logs every map node and what it is assigned to when pressed.");
             LoadSpecKey = Config.Bind("Hotkeys", "LoadSpec", new KeyboardShortcut(KeyCode.F8),
-                "Loads mapdumper-spec.json from the config folder and applies it to the current map.");
+                "Loads encounterpicker-spec.json from the config folder and applies it to the current map.");
             KeepAllEnemies = Config.Bind("Combat", "KeepAllEnemies", false,
                 "Skip the easy-mode trimming that removes one enemy from many campaign combats at madness 0 (acts 1-2).");
             DmPicker = Config.Bind("DungeonMaster", "Picker", false,
@@ -62,7 +62,7 @@ namespace MapDumper
 
             // The BepInEx plugin object gets destroyed by the game right after startup, so Update() never runs on it.
             // Put the per-frame work and the picker's GUI on our own object instead.
-            var runner = new GameObject("MapDumperRunner");
+            var runner = new GameObject("EncounterPickerRunner");
             runner.hideFlags = HideFlags.HideAndDontSave;
             DontDestroyOnLoad(runner);
             runner.AddComponent<HotkeyRunner>();

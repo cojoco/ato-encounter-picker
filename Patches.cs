@@ -1,6 +1,6 @@
 using HarmonyLib;
 
-namespace MapDumper
+namespace EncounterPicker
 {
     // Harmony patches that change what the game does. Patches that only log live in Diagnostics.cs; the travel hook is in Picker.cs.
 

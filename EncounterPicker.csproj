@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>MapDumper</AssemblyName>
-    <RootNamespace>MapDumper</RootNamespace>
+    <AssemblyName>EncounterPicker</AssemblyName>
+    <RootNamespace>EncounterPicker</RootNamespace>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <!-- Override with -p:GameDir=... on another machine -->
@@ -27,7 +27,7 @@
 
   <!-- Copy the built DLL straight into the game's plugins folder -->
   <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(GameDir)/BepInEx/plugins')">
-    <Copy SourceFiles="$(OutputPath)MapDumper.dll" DestinationFolder="$(GameDir)/BepInEx/plugins" />
+    <Copy SourceFiles="$(OutputPath)EncounterPicker.dll" DestinationFolder="$(GameDir)/BepInEx/plugins" />
   </Target>
 
 </Project>

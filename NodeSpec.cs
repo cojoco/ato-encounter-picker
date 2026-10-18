@@ -5,9 +5,9 @@ using System.Linq;
 using BepInEx;
 using Newtonsoft.Json;
 
-namespace MapDumper
+namespace EncounterPicker
 {
-    // One node's overrides, as written in mapdumper-spec.json or set by the DM picker.
+    // One node's overrides, as written in encounterpicker-spec.json or set by the DM picker.
     internal class NodeSpec
     {
         [JsonProperty("combat")] public string Combat { get; set; }
@@ -17,7 +17,7 @@ namespace MapDumper
         [JsonProperty("corruption")] public bool? Corruption { get; set; }
     }
 
-    // The per-node override table: loaded from mapdumper-spec.json, and edited in memory by the DM picker.
+    // The per-node override table: loaded from encounterpicker-spec.json, and edited in memory by the DM picker.
     internal static class SpecFile
     {
         internal static Dictionary<string, NodeSpec> Specs = new Dictionary<string, NodeSpec>();
@@ -28,7 +28,7 @@ namespace MapDumper
 
         internal static void Init()
         {
-            path = Path.Combine(Paths.ConfigPath, "mapdumper-spec.json");
+            path = Path.Combine(Paths.ConfigPath, "encounterpicker-spec.json");
         }
 
         internal static NodeSpec Get(string nodeId)

@@ -1,6 +1,6 @@
-# Map Dumper
+# Encounter Picker
 
-A BepInEx mod for **Across the Obelisk** that lets the host of a run (or a solo player) act as a dungeon master: when the party travels to a node, the host chooses what that node becomes. The plugin is still named "Map Dumper" because it started as a map-dumping experiment.
+A BepInEx mod for **Across the Obelisk** that lets the host of a run (or a solo player) act as a dungeon master: when the party travels to a node, the host chooses what that node becomes.
 
 **Status:** tested solo and in one co-op session on the campaign map and the Obelisk Challenge map. It has not been tried with more than one co-op session, on every zone, or on game versions other than the one it was written against. Back up your save before using it on a run you care about.
 
@@ -21,8 +21,8 @@ A BepInEx mod for **Across the Obelisk** that lets the host of a run (or a solo 
 ## Requirements and install
 
 1. Across the Obelisk with **BepInEx 5.4.x** installed (Windows: the `win_x64` build; Linux: the native BepInEx 5 setup). The game used Unity 2022.3 and Mono when this was written.
-2. Copy `MapDumper.dll` into the game's `BepInEx/plugins/` folder.
-3. Start the game once. The settings file `BepInEx/config/com.cojoco.mapdumper.cfg` is created.
+2. Copy `EncounterPicker.dll` into the game's `BepInEx/plugins/` folder.
+3. Start the game once. The settings file `BepInEx/config/com.cojoco.encounterpicker.cfg` is created.
 4. Set `Picker = true` under `[DungeonMaster]` and restart. The picker is off by default so the plugin does nothing unless asked.
 
 BepInEx does not hot-reload plugins: restart the game after changing the DLL.
@@ -39,11 +39,11 @@ BepInEx does not hot-reload plugins: restart the game after changing the DLL.
 | Key | Action |
 |---|---|
 | F10 | Dump the map to the history log |
-| F8 | Load `mapdumper-spec.json` and apply it to the current map |
+| F8 | Load `encounterpicker-spec.json` and apply it to the current map |
 
 Change them under `[Hotkeys]` in the config file. F12 is the Steam screenshot key, so avoid it.
 
-## Settings (`com.cojoco.mapdumper.cfg`)
+## Settings (`com.cojoco.encounterpicker.cfg`)
 
 | Section / key | Default | Meaning |
 |---|---|---|
@@ -55,7 +55,7 @@ Change them under `[Hotkeys]` in the config file. F12 is the Steam screenshot ke
 
 ## Spec file
 
-`BepInEx/config/mapdumper-spec.json` maps node ids to overrides. Press F8 on the map to apply it. If the file does not exist, F8 writes an example. Find node ids with F10 (or with the picker's title, which shows the id).
+`BepInEx/config/encounterpicker-spec.json` maps node ids to overrides. Press F8 on the map to apply it. If the file does not exist, F8 writes an example. Find node ids with F10 (or with the picker's title, which shows the id).
 
 ```json
 {
@@ -85,7 +85,7 @@ Unknown ids are reported in the history log and skipped. Choices made in the pic
 
 ## Logs
 
-Everything the plugin does is appended with a timestamp to `BepInEx/config/mapdumper-history.log`, which survives restarts (BepInEx's own `LogOutput.log` is overwritten each launch). Useful lines:
+Everything the plugin does is appended with a timestamp to `BepInEx/config/encounterpicker-history.log`, which survives restarts (BepInEx's own `LogOutput.log` is overwritten each launch). Useful lines:
 
 - `DM picker: node ...` the DM's choice
 - `SetCombatData: ...` and `Combat scene spawned enemies: ...` what the game chose and what actually spawned

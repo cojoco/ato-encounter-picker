@@ -1,6 +1,6 @@
 using HarmonyLib;
 
-namespace MapDumper
+namespace EncounterPicker
 {
     // The corruption window shows the enemies of the fight to come. On the campaign map it draws them from the combat's own enemy list
     // (CorruptionManager.cs:512-523), so a node with custom enemies would show the wrong ones. The window is drawn once and has no clean

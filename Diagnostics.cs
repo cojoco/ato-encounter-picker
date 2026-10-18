@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 
-namespace MapDumper
+namespace EncounterPicker
 {
     // Patches that only log, so what the game did can be checked against what was expected. The first three are always on; the rest only log
     // when [Logging] Verbose is set, since they fire on every hover and click.

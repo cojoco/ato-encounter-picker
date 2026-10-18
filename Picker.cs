@@ -3,7 +3,7 @@ using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 
-namespace MapDumper
+namespace EncounterPicker
 {
     // Host-side dungeon master panel: when the party agrees on a combat, event or town node, travel is held until the DM picks what it becomes.
     internal static class Picker
