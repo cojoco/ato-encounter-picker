@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace EncounterPicker
 {
-    // One node's overrides, as written in encounterpicker-spec.json or set by the DM picker.
+    // One node's overrides, as written in encounterpicker-spec.json or set by the picker.
     internal class NodeSpec
     {
         [JsonProperty("combat")] public string Combat { get; set; }
@@ -17,7 +17,7 @@ namespace EncounterPicker
         [JsonProperty("corruption")] public bool? Corruption { get; set; }
     }
 
-    // The per-node override table: loaded from encounterpicker-spec.json, and edited in memory by the DM picker.
+    // The per-node override table: loaded from encounterpicker-spec.json, and edited in memory by the picker.
     internal static class SpecFile
     {
         internal static Dictionary<string, NodeSpec> Specs = new Dictionary<string, NodeSpec>();

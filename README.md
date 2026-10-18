@@ -1,12 +1,12 @@
 # Encounter Picker
 
-A BepInEx mod for **Across the Obelisk** that lets the host of a run (or a solo player) act as a dungeon master: when the party travels to a node, the host chooses what that node becomes.
+A BepInEx mod for **Across the Obelisk** that lets the host of a run (or a solo player) pick what the encounters will be: when the party travels to a node, the host chooses what that node becomes.
 
 **Status:** tested solo and in one co-op session on the campaign map and the Obelisk Challenge map. It has not been tried with more than one co-op session, on every zone, or on game versions other than the one it was written against. Back up your save before using it on a run you care about.
 
 ## What it does
 
-- **DM picker.** Click a combat, event or town node and the travel is held while a panel asks what the node should be:
+- **Picker.** Click a combat, event or town node and the travel is held while a panel asks what the node should be:
   - any **combat** or **event** in the game, with readable names (enemies for combats, event names for events),
   - a **town** (and a town can be turned into an encounter),
   - **custom enemies**: choose up to four enemies yourself, under a base combat of your choice,
@@ -22,26 +22,27 @@ A BepInEx mod for **Across the Obelisk** that lets the host of a run (or a solo 
 
 - **Header:** the node's name and id (and "visited before" on a revisit), the node's current assignment, and a **Hide** button.
 - **Hide / Show.** Hide collapses the panel to a small "Show encounter picker" bar at the top of the screen so you can look over the map first. Travel stays held until you choose. The panel is shown again for the next node.
-- **Tabs:** **Combats**, **Events** and **Custom enemies**, with a **Filter** box. The filter matches the displayed names, the ids, and the enemies' internal ids (so `hydra` finds every hydra fight even though they are shown as "Hatred, Arrogance, ...").
+- **Tabs:** **Combats**, **Events**, **Custom enemies** and **Saved sets**, and a **Filter** box directly above the list, labelled with what it filters. The filter matches the displayed names, the ids, and the enemies' internal ids (so `hydra` finds every hydra fight even though they are shown as "Hatred, Arrogance, ...").
 - **Town and corruption:** **Turn this node into a town**, and a **No corruption offer** toggle (ON when highlighted).
 - **List:** large rows with portraits and a reward line. Click a row to pick it. Lists show the first 150 matches, so type in the filter to narrow them.
 - **Custom enemies tab:** four slot buttons (the selected slot is highlighted, with the enemy's portrait). Click an enemy in the list to fill the selected slot; the selection then moves to the next slot. **Clear selected slot** and **Clear all** empty slots, **Change** picks the base combat, and **Run with these enemies** starts the fight.
+- **Saved sets:** on the Custom enemies tab, type a name (optional) and press **Save this set** to keep the four enemies and base combat. The **Saved sets** tab lists them with portraits; click one to load it into the editor, or **Delete** it. Sets are stored in `BepInEx/config/encounterpicker-presets.json`, so they persist across runs and can be prepared before starting one.
 - **Footer:** **Keep as is** (or **Just go there** on a visited node).
 
 ## Requirements and install
 
 1. Across the Obelisk with **BepInEx 5.4.x** installed (Windows: the `win_x64` build; Linux: the native BepInEx 5 setup). The game used Unity 2022.3 and Mono when this was written.
 2. Copy `EncounterPicker.dll` into the game's `BepInEx/plugins/` folder.
-3. Start the game. The settings file `BepInEx/config/com.cojoco.encounterpicker.cfg` is created, and the picker is on by default. To turn it off, set `Picker = false` under `[DungeonMaster]` and restart.
+3. Start the game. The settings file `BepInEx/config/com.cojoco.encounterpicker.cfg` is created, and the picker is on by default. To turn it off, set `Picker = false` under `[EncounterPicker]` and restart.
 
 BepInEx does not hot-reload plugins: restart the game after changing the DLL.
 
 ## Co-op
 
-- The **host** needs the mod and runs the picker. Other players only receive the combat or event id, and look it up in their own game data, so **other players do not need the mod** as long as the DM picks vanilla combats and events. This is based on reading the game's network code and one real session, not on broad testing.
+- The **host** needs the mod and runs the picker. Other players only receive the combat or event id, and look it up in their own game data, so **other players do not need the mod** as long as the host picks vanilla combats and events. This is based on reading the game's network code and one real session, not on broad testing.
 - Custom enemies are sent to other players with the rest of the team data, so they should appear for everyone.
-- Other players' map previews can still show a node's original contents before the DM has chosen.
-- Not supported: a separate fifth player acting as DM without a hero. The game's room and ready-check code assumes every connection owns a hero.
+- Other players' map previews can still show a node's original contents before the host has chosen.
+- Not supported: a separate fifth player running the picker without a hero. The game's room and ready-check code assumes every connection owns a hero.
 
 ## Hotkeys
 
@@ -56,8 +57,8 @@ Change them under `[Hotkeys]` in the config file. F12 is the Steam screenshot ke
 
 | Section / key | Default | Meaning |
 |---|---|---|
-| `[DungeonMaster] Picker` | `true` | Hold travel to combat, event and town nodes and show the DM panel (host or solo only) |
-| `[DungeonMaster] NoCorruption` | `false` | Never show the corruption offer before combats |
+| `[EncounterPicker] Picker` | `true` | Hold travel to combat, event and town nodes and show the picker panel (host or solo only) |
+| `[EncounterPicker] NoCorruption` | `false` | Never show the corruption offer before combats |
 | `[Combat] KeepAllEnemies` | `false` | Skip the easy-mode enemy trimming |
 | `[Logging] Verbose` | `false` | Also log every node hover and click, and corruption checks |
 | `[Hotkeys] DumpMap`, `LoadSpec` | F10, F8 | Hotkeys |
@@ -96,7 +97,7 @@ Unknown ids are reported in the history log and skipped. Choices made in the pic
 
 Everything the plugin does is appended with a timestamp to `BepInEx/config/encounterpicker-history.log`, which survives restarts (BepInEx's own `LogOutput.log` is overwritten each launch). Useful lines:
 
-- `DM picker: node ...` the DM's choice
+- `Picker: node ...` the host's choice
 - `SetCombatData: ...` and `Combat scene spawned enemies: ...` what the game chose and what actually spawned
 - `Rewards shown: ...` the real payout per hero
 - `Corruption offered at node ...`

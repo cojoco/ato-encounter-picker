@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace EncounterPicker
 {
-    // Host-side dungeon master panel: when the party agrees on a combat, event or town node, travel is held until the DM picks what it becomes.
+    // Host-side picker panel: when the party agrees on a combat, event or town node, travel is held until the host picks what it becomes.
     internal static class Picker
     {
         private class Entry
@@ -25,7 +25,7 @@ namespace EncounterPicker
 
         private static string filter = "";
         private static Vector2 scroll;
-        private static int tab; // 0 combats, 1 events, 2 custom enemies
+        private static int tab; // 0 combats, 1 events, 2 custom enemies, 3 saved sets
 
         private static List<Entry> combats;
         private static List<Entry> events;
@@ -39,6 +39,7 @@ namespace EncounterPicker
         private static string[] customEnemies;
         private static string message = "";
         private static bool choosingBase;
+        private static string presetName = "";
         private static bool skipCorruption;
 
         private const int MaxRows = 150;
@@ -235,9 +236,10 @@ namespace EncounterPicker
             GUI.skin = PickerStyles.Skin;
 
             const float w = 1000f;
-            const float h = 900f;
             float sw = Screen.width / scale;
             float sh = Screen.height / scale;
+            // Tall enough for plenty of rows, but never taller than the screen (20 units of margin top and bottom).
+            float h = Mathf.Min(1000f, sh - 40f);
 
             // Hidden: only a small bar stays, so the map can be looked over before picking.
             if (hidden)
@@ -250,7 +252,7 @@ namespace EncounterPicker
                 return;
             }
 
-            var area = new Rect((sw - w) / 2f, (sh - h) / 2f, w, h);
+            var area = new Rect((sw - w) / 2f, 20f, w, h);
             GUI.Box(area, GUIContent.none);
 
             GUILayout.BeginArea(new Rect(area.x + 20f, area.y + 20f, w - 40f, h - 40f));
@@ -260,7 +262,7 @@ namespace EncounterPicker
             bool visited = AtOManager.Instance.mapVisitedNodes.Contains(nodeId);
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label($"Dungeon master: {Pending.nodeData.NodeName} ({nodeId}){(visited ? " - visited before" : "")}", PickerStyles.Title);
+            GUILayout.Label($"Encounter Picker: {Pending.nodeData.NodeName} ({nodeId}){(visited ? " - visited before" : "")}", PickerStyles.Title);
             if (GUILayout.Button("Hide", GUILayout.Width(120f)))
             {
                 hidden = true;
@@ -292,9 +294,10 @@ namespace EncounterPicker
             {
                 tab = 2;
             }
-            GUILayout.Space(12f);
-            GUILayout.Label("Filter:", GUILayout.Width(60f));
-            filter = GUILayout.TextField(filter, GUILayout.Width(280f));
+            if (GUILayout.Toggle(tab == 3, "Saved sets", GUI.skin.button))
+            {
+                tab = 3;
+            }
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
@@ -361,6 +364,24 @@ namespace EncounterPicker
                 GUI.enabled = true;
                 GUILayout.EndHorizontal();
 
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Save as:", GUILayout.Width(80f));
+                presetName = GUILayout.TextField(presetName, GUILayout.Width(300f));
+                GUI.enabled = slots.Any(x => x != "");
+                if (GUILayout.Button("Save this set"))
+                {
+                    string name = presetName.Trim();
+                    if (name == "")
+                    {
+                        name = string.Join(" + ", slots.Where(x => x != "").Select(x => Globals.Instance.GetNPC(x) is NPCData n ? NpcName(n) : x));
+                    }
+                    PresetFile.Save(name, baseCombat, slots);
+                    message = $"Saved '{name}'. Find it under Saved sets.";
+                    presetName = "";
+                }
+                GUI.enabled = true;
+                GUILayout.EndHorizontal();
+
                 GUILayout.Label($"Rewards from these enemies: {RewardSummary(slots.Select(id => id == "" ? null : Globals.Instance.GetNPC(id)))} (before any combat performance bonus)", PickerStyles.Muted);
                 if (message != "")
                 {
@@ -369,7 +390,26 @@ namespace EncounterPicker
             }
             GUILayout.Space(6f);
 
+            // The filter sits right above the list it filters.
+            string listName = tab == 1 ? "events" : tab == 3 ? "saved sets" : tab == 2 && !choosingBase ? "enemies" : "combats";
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"Filter {listName}:", GUILayout.Width(200f));
+            filter = GUILayout.TextField(filter, GUILayout.ExpandWidth(true));
+            GUILayout.EndHorizontal();
             string needle = filter.Trim().ToLowerInvariant();
+            if (tab == 3)
+            {
+                DrawSavedSets(needle);
+                GUILayout.Space(6f);
+                if (GUILayout.Button(visited ? "Just go there (no encounter)" : "Keep as is", GUILayout.MinHeight(52f)))
+                {
+                    decided = true;
+                    chosen = null;
+                }
+                GUILayout.EndArea();
+                GUI.skin = previousSkin;
+                return;
+            }
             var rows = (tab == 1 ? events : tab == 2 && !choosingBase ? npcs : combats).Where(e => needle == "" || e.Search.Contains(needle)).ToList();
 
             // The list takes whatever height is left, so the footer button stays at the bottom.
@@ -420,6 +460,59 @@ namespace EncounterPicker
             GUI.skin = previousSkin;
         }
 
+        // Saved sets: click one to load it into the custom enemies editor.
+        private static void DrawSavedSets(string needle)
+        {
+            scroll = GUILayout.BeginScrollView(scroll, GUILayout.ExpandHeight(true));
+            Preset toDelete = null;
+            int shown = 0;
+            foreach (Preset preset in PresetFile.Presets)
+            {
+                string[] ids = preset.Enemies ?? new string[0];
+                NPCData[] npcList = ids.Select(id => string.IsNullOrEmpty(id) ? null : Globals.Instance.GetNPC(id)).ToArray();
+                if (needle != "" && !(preset.Name + " " + string.Join(" ", ids)).ToLowerInvariant().Contains(needle))
+                {
+                    continue;
+                }
+                shown++;
+                GUILayout.BeginHorizontal();
+                string text = $"{preset.Name}\n<size=15><color=#b8a888>{RewardSummary(npcList)}</color></size>";
+                bool clicked = GUILayout.Button(text, PickerStyles.RowWithIcons(4), GUILayout.MinHeight(64f));
+                if (Event.current.type == EventType.Repaint)
+                {
+                    PickerStyles.DrawRowIcons(npcList, 4);
+                }
+                if (GUILayout.Button("Delete", GUILayout.Width(100f), GUILayout.MinHeight(64f)))
+                {
+                    toDelete = preset;
+                }
+                GUILayout.EndHorizontal();
+                if (clicked)
+                {
+                    for (int i = 0; i < slots.Length; i++)
+                    {
+                        slots[i] = i < ids.Length && ids[i] != null ? ids[i] : "";
+                    }
+                    if (!string.IsNullOrEmpty(preset.Combat) && Globals.Instance.GetCombatData(preset.Combat) != null)
+                    {
+                        baseCombat = preset.Combat;
+                    }
+                    slotSel = 0;
+                    message = $"Loaded '{preset.Name}'.";
+                    tab = 2;
+                }
+            }
+            if (shown == 0)
+            {
+                GUILayout.Label(PresetFile.Presets.Count == 0 ? "No saved sets yet. Build one under Custom enemies and press Save this set." : "No saved set matches the filter.", PickerStyles.Muted);
+            }
+            GUILayout.EndScrollView();
+            if (toDelete != null)
+            {
+                PresetFile.Delete(toDelete);
+            }
+        }
+
         // Custom enemies are set by the Custom tab; any other pick clears the node's custom enemies.
         private static void SetNodeEnemies(string nodeId, string[] enemies)
         {
@@ -447,7 +540,7 @@ namespace EncounterPicker
             }
         }
 
-        // Applies the DM's choice outside OnGUI, since changing game state mid-layout upsets IMGUI.
+        // Applies the host's choice outside OnGUI, since changing game state mid-layout upsets IMGUI.
         internal static void Tick()
         {
             if (!decided || Pending == null)
@@ -476,11 +569,11 @@ namespace EncounterPicker
                 AtOManager.Instance.gameNodeAssigned[node.nodeData.NodeId] = assignment;
                 node.AssignNode();
                 SetNodeEnemies(node.nodeData.NodeId, enemies);
-                Plugin.Record($"DM picker: node '{node.nodeData.NodeId}'{(wasVisited ? " (visited before)" : "")} -> {assignment}{MapTools.DescribeCombat(assignment)}{(enemies != null ? $" with custom enemies [{string.Join(", ", enemies)}]" : "")}{(skipOffer ? " (no corruption)" : "")}");
+                Plugin.Record($"Picker: node '{node.nodeData.NodeId}'{(wasVisited ? " (visited before)" : "")} -> {assignment}{MapTools.DescribeCombat(assignment)}{(enemies != null ? $" with custom enemies [{string.Join(", ", enemies)}]" : "")}{(skipOffer ? " (no corruption)" : "")}");
             }
             else
             {
-                Plugin.Record($"DM picker: node '{node.nodeData.NodeId}'{(wasVisited ? " (visited before)" : "")} kept as is.");
+                Plugin.Record($"Picker: node '{node.nodeData.NodeId}'{(wasVisited ? " (visited before)" : "")} kept as is.");
             }
 
             Bypass = true;
@@ -488,7 +581,7 @@ namespace EncounterPicker
         }
     }
 
-    // Holds the host's travel to a combat, event or town node until the DM has chosen what it becomes.
+    // Holds the host's travel to a combat, event or town node until the host has chosen what it becomes.
     [HarmonyPatch(typeof(MapManager), nameof(MapManager.TravelToThisNode))]
     internal static class TravelToThisNodePatch
     {

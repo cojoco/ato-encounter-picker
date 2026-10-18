@@ -45,6 +45,7 @@ namespace EncounterPicker
             Log = Logger;
             historyPath = Path.Combine(Paths.ConfigPath, "encounterpicker-history.log");
             SpecFile.Init();
+            PresetFile.Init();
 
             DumpKey = Config.Bind("Hotkeys", "DumpMap", new KeyboardShortcut(KeyCode.F10),
                 "Logs every map node and what it is assigned to when pressed.");
@@ -52,9 +53,9 @@ namespace EncounterPicker
                 "Loads encounterpicker-spec.json from the config folder and applies it to the current map.");
             KeepAllEnemies = Config.Bind("Combat", "KeepAllEnemies", false,
                 "Skip the easy-mode trimming that removes one enemy from many campaign combats at madness 0 (acts 1-2).");
-            DmPicker = Config.Bind("DungeonMaster", "Picker", true,
+            DmPicker = Config.Bind("EncounterPicker", "Picker", true,
                 "When the party travels to a combat, event or town node, hold the travel and let the host pick what the node becomes. Host or solo only.");
-            NoCorruption = Config.Bind("DungeonMaster", "NoCorruption", false,
+            NoCorruption = Config.Bind("EncounterPicker", "NoCorruption", false,
                 "Never show the corruption offer before combats. Host or solo only.");
             Verbose = Config.Bind("Logging", "Verbose", false,
                 "Also log every node hover and click, and the checks behind each corruption offer. Makes the history file grow quickly.");
@@ -68,7 +69,7 @@ namespace EncounterPicker
             runner.AddComponent<HotkeyRunner>();
 
             Record("==== New session ====");
-            Record($"{PluginName} {PluginVersion} loaded. Dump map: {DumpKey.Value}, load spec: {LoadSpecKey.Value}, DM picker: {(DmPicker.Value ? "on" : "off")}.");
+            Record($"{PluginName} {PluginVersion} loaded. Dump map: {DumpKey.Value}, load spec: {LoadSpecKey.Value}, picker: {(DmPicker.Value ? "on" : "off")}.");
         }
     }
 

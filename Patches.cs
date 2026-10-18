@@ -76,7 +76,7 @@ namespace EncounterPicker
         }
     }
 
-    // The game decides "is this a town" from the node's data, not from the assignment. Make the data follow the assignment, so a node the DM
+    // The game decides "is this a town" from the node's data, not from the assignment. Make the data follow the assignment, so a node the host
     // turned into a town (or out of one) behaves that way when travelling to it, on the map icon, and after a save is reloaded.
     [HarmonyPatch(typeof(NodeData), nameof(NodeData.GoToTown), MethodType.Getter)]
     internal static class GoToTownPatch
@@ -99,7 +99,7 @@ namespace EncounterPicker
         }
     }
 
-    // The travel code skips the corruption offer for nodes whose data says so (MapManager.cs:1635). Make that follow the DM's per-node
+    // The travel code skips the corruption offer for nodes whose data says so (MapManager.cs:1635). Make that follow the host's per-node
     // choice and the global NoCorruption setting.
     [HarmonyPatch(typeof(NodeData), nameof(NodeData.DisableCorruption), MethodType.Getter)]
     internal static class DisableCorruptionPatch
