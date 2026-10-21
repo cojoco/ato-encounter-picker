@@ -1,0 +1,37 @@
+ENCOUNTER PICKER - install guide (Across the Obelisk, Steam, Windows)
+
+You only need this if you will HOST a co-op run (or play solo) and want to
+choose the combats and events yourself. If you only join someone else's game,
+you do not need to install anything.
+
+1. Open the game folder.
+   In Steam, right-click "Across the Obelisk" > Manage > Browse local files.
+   You should see AcrossTheObelisk.exe. Keep this window open.
+
+2. Install BepInEx 5 (the mod loader). Skip this if you already use it.
+   - Go to https://github.com/BepInEx/BepInEx/releases
+   - Download the newest 5.4.x file named BepInEx_win_x64_5.4.x.x.zip
+     (NOT version 6, and NOT the x86 file).
+   - Open the zip and copy EVERYTHING inside it into the game folder, next to
+     AcrossTheObelisk.exe. You should end up with a "BepInEx" folder and a
+     "winhttp.dll" file in the game folder.
+
+3. Start the game once, wait for the main menu, then close it.
+   This creates the BepInEx\plugins folder.
+
+4. Copy EncounterPicker.dll (from this zip) into the game folder's
+   BepInEx\plugins folder.
+
+5. Start the game. When your party clicks a combat, event or town node on the
+   map, a panel opens where you choose what that node becomes.
+   The "Hide" button shrinks the panel so you can look at the map first.
+
+Troubleshooting
+- Nothing happens: right-click EncounterPicker.dll > Properties and tick
+  "Unblock" if it is shown, then OK. Check that antivirus did not remove it.
+- Check BepInEx\LogOutput.log: it should say "Encounter Picker <version> loaded".
+- To turn the picker off, open BepInEx\config\com.cojoco.encounterpicker.cfg
+  in Notepad and change "Picker = true" to "Picker = false".
+- To uninstall, delete EncounterPicker.dll from BepInEx\plugins.
+
+Back up your save before using it on a run you care about.
