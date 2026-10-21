@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+### Changed
+- Runs played with Encounter Picker installed no longer post scores to the Steam leaderboards.
+
 ## 0.4.0
 
 ### Added

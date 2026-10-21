@@ -86,6 +86,7 @@ Unknown ids are reported in the history log and skipped. Choices made in the pic
 
 ## Good to know
 
+- **No Steam leaderboards.** Scores from runs played with this mod installed are not posted to the Steam leaderboards (normal, Obelisk, Singularity and weekly), so modded runs do not mix with vanilla ones. The log says "Steam leaderboard score not posted" when a run ends.
 - **Rewards come from the enemies, not the combat.** XP, gold and loot tier are summed from the enemies' own data. The base combat of a custom set only affects the end-of-combat event, healing and special effects.
 - **Enemy variants.** The game swaps some enemies for upgraded versions depending on your town tier, NG+ and difficulty. The fight and the rewards use the variant.
 - **Resuming a save mid-fight** rebuilds the enemies from the saved fight, so overrides made after saving do not change it. Test overrides on a fight started fresh from the map.

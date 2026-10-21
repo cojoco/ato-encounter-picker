@@ -13,7 +13,7 @@ namespace EncounterPicker
     {
         public const string PluginGuid = "com.cojoco.encounterpicker";
         public const string PluginName = "Encounter Picker";
-        public const string PluginVersion = "0.4.0";
+        public const string PluginVersion = "0.4.1";
 
         internal static ManualLogSource Log;
 
